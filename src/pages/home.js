@@ -4,8 +4,6 @@ import { Button, notification, Space, Empty, Spin } from "antd";
 import ImageCard from "../components/imageCard/imageCard";
 import SearchBar from "../components/searchBar/searchBar";
 
-const api = `https://beondesk-backend.vercel.app/api/images` //'http://localhost:8080/api/images'
-
 const Home = () => {
   const [notificationApi, contextHolder] = notification.useNotification();
   const [results, setResults] = useState([]);
@@ -22,7 +20,7 @@ const Home = () => {
     } else {
       delay = setTimeout(() => {
         getResults();
-      }, 2000)
+      }, 1000)
     }
 
     return () => clearTimeout(delay)
@@ -32,7 +30,7 @@ const Home = () => {
 
   const getResults = async (pg) => {
     setLoading(true)
-    const response = await axios.get(`${api}?query=${query}&page=${pg || page}&per_page=${per_page}`,
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/images?query=${query}&page=${pg || page}&per_page=${per_page}`,
       { headers: { Authorization: `Bearer ${process.env.REACT_APP_JWT_TOKEN}` } });
 
     if (response.data?.code === 200) {
@@ -67,7 +65,7 @@ const Home = () => {
   return (
     <div>
       {contextHolder}
-      <SearchBar value={query} onChange={onSearchChange} onPressEnter={(e) => { console.log('enter', e.target.value) }} />
+      <SearchBar value={query} onChange={onSearchChange} onPressEnter={() => { getResults() }} />
       <div className="centered-item" style={{ marginTop: "80px" }}>
         {loading ? <Spin /> : 
         <Space size={30} wrap>
@@ -82,6 +80,6 @@ const Home = () => {
       </div>  : null}
     </div>
   );
-};
+};  
 
 export default Home;

@@ -8,7 +8,7 @@ const ImageCard = ({ data }) => {
   return (
     <>
       <div onClick={() => setOpen(data)} className={styles.CC_imageCard}>
-        <Image width={300} height={200} src={data?.urls?.regular} preview={false} />
+        <Image width={300} height={200} src={data?.urls?.small} preview={false} />
         <div className={styles.CC_imageCardDetails}>
           <Space align='center'>
             <Avatar src={data?.user?.profile_image?.small} />
