@@ -29,27 +29,36 @@ const Home = () => {
   }, [query]);
 
   const getResults = async (pg) => {
-    setLoading(true)
-    const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/images?query=${query}&page=${pg || page}&per_page=${per_page}`,
-      { headers: { Authorization: `Bearer ${process.env.REACT_APP_JWT_TOKEN}` } });
+    try {
+      setLoading(true)
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/images?query=${query}&page=${pg || page}&per_page=${per_page}`,
+        { headers: { Authorization: `Bearer ${process.env.REACT_APP_JWT_TOKEN}` } });
 
-    if (response.data?.code === 200) {
-      if (pg) {
-        const res = { ...results }
-        res.results = res.results.concat(response.data?.images?.results)
+      if (response.data?.code === 200) {
+        if (pg) {
+          const res = { ...results }
+          res.results = res.results.concat(response.data?.images?.results)
 
-        setResults(res)
+          setResults(res)
+        } else {
+          setResults(response.data?.images);
+        }
       } else {
-        setResults(response.data?.images);
+        notificationApi.error({
+          message: "Error",
+          description: response.data?.message,
+        });
       }
-    } else {
+
+      setLoading(false)
+    } catch (e) {
       notificationApi.error({
         message: "Error",
-        description: response.data?.message,
+        description: e.message,
       });
-    }
 
-    setLoading(false)
+      setLoading(false)
+    }
   };
 
   const onSearchChange = (e) => {
@@ -67,19 +76,19 @@ const Home = () => {
       {contextHolder}
       <SearchBar value={query} onChange={onSearchChange} onPressEnter={() => { getResults() }} />
       <div className="centered-item" style={{ marginTop: "80px" }}>
-        {loading ? <Spin /> : 
-        <Space size={30} wrap>
-          {results?.results?.length > 0 ? results?.results?.map((item) => {
-            return <ImageCard data={item} key={item.id} />;
-          }) : 
-          <Empty />}
-        </Space>}
+        {loading ? <Spin /> :
+          <Space size={30} wrap>
+            {results?.results?.length > 0 ? results?.results?.map((item) => {
+              return <ImageCard data={item} key={item.id} />;
+            }) :
+              <Empty />}
+          </Space>}
       </div>
-      {page < results?.total_pages && !loading ? <div className="CC_Button centered-item" style={{ marginTop: "30px", marginBottom: '30px'}}>
-       <Button type="primary" shape="round" size="large" onClick={onPageChange}>Load More</Button>
-      </div>  : null}
+      {page < results?.total_pages && !loading ? <div className="CC_Button centered-item" style={{ marginTop: "30px", marginBottom: '30px' }}>
+        <Button type="primary" shape="round" size="large" onClick={onPageChange}>Load More</Button>
+      </div> : null}
     </div>
   );
-};  
+};
 
 export default Home;
