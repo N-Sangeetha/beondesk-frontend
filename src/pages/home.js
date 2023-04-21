@@ -54,7 +54,7 @@ const Home = () => {
     } catch (e) {
       notificationApi.error({
         message: "Error",
-        description: e.message,
+        description: e.data?.message || e.message,
       });
 
       setLoading(false)
