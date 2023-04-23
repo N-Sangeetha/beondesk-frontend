@@ -10,11 +10,7 @@
   align-items: center;
 }
 
-.CC_Button{
-  .ant-btn-primary {
-    background-color: #04beb8;
-    &:hover {
-      background-color: #54e8e3 !important;
-    }
-  }
+.spinner{
+  position: absolute;
+  z-index: 1;
 }

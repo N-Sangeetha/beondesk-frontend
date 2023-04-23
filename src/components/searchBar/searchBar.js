@@ -5,14 +5,20 @@ import styles from './searchBar.module.scss'
 
 const { Search } = Input;
 
-const SearchBar = ({ value, onChange, onPressEnter }) => {
+const SearchBar = (props) => {
+  const placeholder = props.placeholder || "input search text";
+  const onChange = props.onChange ? props.onChange : () => {};
+  const onPressEnter = props.onPressEnter ? props.onPressEnter : () => {};
+  const width = props.width || '100%';
+  const cssClass = props.cssClass || '';
+
   return (
-    <div className={styles.CC_Search}>
+    <div className={`${styles.CC_Search} ${cssClass}`}>
       <Search
-        placeholder="input search text"
+        placeholder={placeholder}
         onChange={onChange}
         onPressEnter={onPressEnter}
-        style={{ width: 400 }}
+        style={{ width: width }}
         enterButton
       />
     </div>

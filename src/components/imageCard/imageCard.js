@@ -3,11 +3,18 @@ import { Avatar, Image, Space } from 'antd';
 import styles from './imageCard.module.scss'
 import ImageView from '../imageView/imageView';
 
-const ImageCard = ({ data }) => {
+const ImageCard = (props) => {
+  const data =  props.data;
+  const hasView = props.hasView || false;
   const [open, setOpen] = useState(false);
+
+  const onClick = () => {
+    if(hasView) setOpen(data)
+  }
+
   return (
     <>
-      <div onClick={() => setOpen(data)} className={styles.CC_imageCard}>
+      <div onClick={onClick} className={styles.CC_imageCard}>
         <Image width={300} height={200} src={data?.urls?.small} preview={false} />
         <div className={styles.CC_imageCardDetails}>
           <Space align='center'>

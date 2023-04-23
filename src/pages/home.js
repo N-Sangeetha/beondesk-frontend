@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Button, notification, Space, Empty, Spin } from "antd";
+import { notification, Space, Empty, Spin } from "antd";
+
 import ImageCard from "../components/imageCard/imageCard";
 import SearchBar from "../components/searchBar/searchBar";
+import Button from '../components/button/button';
 
 const Home = () => {
-  const [notificationApi, contextHolder] = notification.useNotification();
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState("");
@@ -15,24 +16,20 @@ const Home = () => {
   useEffect(() => {
     //debounce
     let delay;
-    if (!query) {
-      getResults()
-    } else {
-      delay = setTimeout(() => {
-        getResults();
-      }, 1000)
+    if (!query) getResults()
+    else {
+      delay = setTimeout(() => getResults(), 1000)
     }
 
     return () => clearTimeout(delay)
-
     // eslint-disable-next-line
   }, [query]);
 
   const getResults = async (pg) => {
     try {
-      setLoading(true)
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/images?query=${query}&page=${pg || page}&per_page=${per_page}`,
-        { headers: { Authorization: `Bearer ${process.env.REACT_APP_JWT_TOKEN}` } });
+      if (!pg) setLoading(true)
+
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/images?query=${query}&page=${pg || page}&per_page=${per_page}`, { headers: { Authorization: `Bearer ${process.env.REACT_APP_JWT_TOKEN}` } });
 
       if (response.data?.code === 200) {
         if (pg) {
@@ -43,20 +40,11 @@ const Home = () => {
         } else {
           setResults(response.data?.images);
         }
-      } else {
-        notificationApi.error({
-          message: "Error",
-          description: response.data?.message,
-        });
       }
 
       setLoading(false)
     } catch (e) {
-      notificationApi.error({
-        message: "Error",
-        description: e.response?.data?.message || e.message,
-      });
-
+      notification.error({ message: "Error", description: e.response?.data?.message || e.message });
       setLoading(false)
     }
   };
@@ -72,21 +60,25 @@ const Home = () => {
   }
 
   return (
-    <div>
-      {contextHolder}
-      <SearchBar value={query} onChange={onSearchChange} onPressEnter={() => { getResults() }} />
-      <div className="centered-item" style={{ marginTop: "80px" }}>
-        {loading ? <Spin /> :
+    <div style={{ marginBottom: '30px' }}>
+
+      <SearchBar width={400} onChange={onSearchChange} onPressEnter={() => { getResults() }} />
+
+      <div style={{ marginTop: "80px", marginBottom: '30px' }}>
+        <Spin spinning={loading}>
           <Space size={30} wrap>
-            {results?.results?.length > 0 ? results?.results?.map((item) => {
-              return <ImageCard data={item} key={item.id} />;
-            }) :
-              <Empty />}
-          </Space>}
+            {
+              results?.results?.length > 0 ? results?.results?.map(item => 
+                <ImageCard data={item} key={item.id} hasView={true} />)
+                : <Empty />
+            }
+          </Space>
+        </Spin>
       </div>
-      {page < results?.total_pages && !loading ? <div className="CC_Button centered-item" style={{ marginTop: "30px", marginBottom: '30px' }}>
-        <Button type="primary" shape="round" size="large" onClick={onPageChange}>Load More</Button>
-      </div> : null}
+
+      {page < results?.total_pages && !loading &&
+        <Button label="Load More" cssClass="centered-item" onClick={onPageChange} />}
+
     </div>
   );
 };
